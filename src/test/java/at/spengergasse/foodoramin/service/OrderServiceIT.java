@@ -52,4 +52,13 @@ class OrderServiceIT {
     // TODO Step 3: Assert the response (status, userId, items, total)
     // TODO Step 4: Verify side effects — cart is empty, order exists in DB
   }
+
+  @Test
+  @Transactional
+  void cancelOrder_shouldSetStatusToCancelled() {
+    // TODO Step 1: Save a user and restaurant
+    // TODO Step 2: Save a SUBMITTED order (use newSubmittedOrder fixture)
+    // TODO Step 3: Call orderService.cancelOrder(userId, orderId)
+    // TODO Step 4: Reload the order from DB and assert status is CANCELLED
+  }
 }

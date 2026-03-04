@@ -44,4 +44,15 @@ public class OrderService {
 
     return null;
   }
+
+  @Transactional
+  public void cancelOrder(Long userId, Long orderId) {
+    log.debug("Cancelling order orderId={} for userId={}", orderId, userId);
+
+    // TODO Step 1: Load the user (throw not found if missing)
+    // TODO Step 2: Load the order (throw not found if missing)
+    // TODO Step 3: Verify the order belongs to the user (throw forbidden if not)
+    // TODO Step 4: Cancel the order (this may throw IllegalStateException if already DELIVERED)
+    // TODO Step 5: Log success
+  }
 }

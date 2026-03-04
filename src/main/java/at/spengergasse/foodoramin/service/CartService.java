@@ -57,4 +57,14 @@ public class CartService {
     log.info("Added item to cart userId={} cartId={}", userId, saved.getId());
     return response;
   }
+
+  @Transactional
+  public void clearCart(Long userId) {
+    log.debug("Clearing cart for userId={}", userId);
+
+    // TODO Step 1: Load the user (throw not found if missing)
+    // TODO Step 2: Load the user's cart (throw not found if missing)
+    // TODO Step 3: Clear all items from the cart
+    // TODO Step 4: Log success
+  }
 }
