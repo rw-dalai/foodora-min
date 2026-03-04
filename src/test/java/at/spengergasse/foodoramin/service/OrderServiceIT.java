@@ -1,13 +1,5 @@
 package at.spengergasse.foodoramin.service;
 
-import static at.spengergasse.foodoramin.model.fixtures.FoodoraFixtures.newCartWithOneItem;
-import static at.spengergasse.foodoramin.model.fixtures.FoodoraFixtures.newCancelledOrder;
-import static at.spengergasse.foodoramin.model.fixtures.FoodoraFixtures.newDeliveredOrder;
-import static at.spengergasse.foodoramin.model.fixtures.FoodoraFixtures.newRestaurantWithMenu;
-import static at.spengergasse.foodoramin.model.fixtures.FoodoraFixtures.newSubmittedOrder;
-import static at.spengergasse.foodoramin.model.fixtures.FoodoraFixtures.newUser;
-import static org.assertj.core.api.Assertions.assertThat;
-
 import at.spengergasse.foodoramin.repository.CartRepository;
 import at.spengergasse.foodoramin.repository.OrderRepository;
 import at.spengergasse.foodoramin.repository.RestaurantRepository;
@@ -16,6 +8,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
+
+import static at.spengergasse.foodoramin.model.fixtures.FoodoraFixtures.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 class OrderServiceIT {
@@ -40,7 +35,7 @@ class OrderServiceIT {
     // When
     var result = orderService.getOrdersForUser(user.getId());
 
-    // Then — 3 orders in DB, but CANCELLED is filtered out → 2 results sorted by ID DESC
+    // Then — 3 orders in DB, but CANCELLED is filtered out -> 2 results sorted by orderedAt DESC
     assertThat(result).hasSize(2);
     assertThat(result.getFirst().status()).isEqualTo("DELIVERED");
     assertThat(result.getFirst().restaurantName()).isEqualTo("Fixture Restaurant");

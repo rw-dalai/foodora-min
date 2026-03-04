@@ -13,24 +13,13 @@ public final class OrderMapper {
   private OrderMapper() {}
 
   public static OrderSummaryResponse toSummary(Order order) {
-    return new OrderSummaryResponse(
-        order.getId(),
-        order.getRestaurant().getName(),
-        order.getStatus().name(),
-        order.readItems().size(),
-        MoneyMapper.toResponse(order.total()));
+    // TODO: implement
+    return null;
   }
 
   public static OrderResponse toResponse(Order order) {
-    List<OrderItemResponse> items = order.readItems().stream().map(OrderMapper::toItemResponse).toList();
-
-    return new OrderResponse(
-        order.getId(),
-        order.getUser().getId(),
-        order.getRestaurant().getId(),
-        order.getStatus().name(),
-        items,
-        MoneyMapper.toResponse(order.total()));
+    // TODO: implement
+    return null;
   }
 
   private static OrderItemResponse toItemResponse(OrderItem item) {

@@ -1,28 +1,22 @@
 package at.spengergasse.foodoramin.service;
 
-import static at.spengergasse.foodoramin.model.fixtures.FoodoraFixtures.newCancelledOrder;
-import static at.spengergasse.foodoramin.model.fixtures.FoodoraFixtures.newCartWithOneItem;
-import static at.spengergasse.foodoramin.model.fixtures.FoodoraFixtures.newDeliveredOrder;
-import static at.spengergasse.foodoramin.model.fixtures.FoodoraFixtures.newRestaurantWithMenu;
-import static at.spengergasse.foodoramin.model.fixtures.FoodoraFixtures.newSubmittedOrder;
-import static at.spengergasse.foodoramin.model.fixtures.FoodoraFixtures.newUser;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import at.spengergasse.foodoramin.model.entity.Order;
 import at.spengergasse.foodoramin.repository.CartRepository;
 import at.spengergasse.foodoramin.repository.OrderRepository;
 import at.spengergasse.foodoramin.repository.UserRepository;
-import java.util.List;
-import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+
+import static at.spengergasse.foodoramin.model.fixtures.FoodoraFixtures.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class OrderServiceTest {
@@ -39,7 +33,7 @@ class OrderServiceTest {
   }
 
   @Test
-  void getOrdersForUser_shouldFilterCancelledAndSortByIdDesc() {
+  void getOrdersForUser_shouldFilterCancelledAndSortByOrderedAtDesc() {
     // Given
     Long userId = 1L;
     var user = newUser();
@@ -50,12 +44,15 @@ class OrderServiceTest {
 
     var deliveredOrder = newDeliveredOrder(user, restaurant);
     ReflectionTestUtils.setField(deliveredOrder, "id", 3L);
+    ReflectionTestUtils.setField(deliveredOrder, "orderedAt", LocalDateTime.now().minusHours(2));
 
     var submittedOrder = newSubmittedOrder(user, restaurant);
     ReflectionTestUtils.setField(submittedOrder, "id", 2L);
+    ReflectionTestUtils.setField(submittedOrder, "orderedAt", LocalDateTime.now().minusHours(1));
 
     var cancelledOrder = newCancelledOrder(user, restaurant);
     ReflectionTestUtils.setField(cancelledOrder, "id", 1L);
+    ReflectionTestUtils.setField(cancelledOrder, "orderedAt", LocalDateTime.now());
 
     when(userRepository.findById(userId)).thenReturn(Optional.of(user));
     when(orderRepository.findByUserId(userId))
@@ -64,16 +61,16 @@ class OrderServiceTest {
     // When
     var result = orderService.getOrdersForUser(userId);
 
-    // Then — CANCELLED is filtered out, sorted by ID descending
+    // Then — CANCELLED is filtered out, sorted by orderedAt descending
     assertThat(result).hasSize(2);
 
-    assertThat(result.get(0).orderId()).isEqualTo(3L);
-    assertThat(result.get(0).status()).isEqualTo("DELIVERED");
-    assertThat(result.get(0).restaurantName()).isEqualTo("Fixture Restaurant");
+    assertThat(result.get(0).orderId()).isEqualTo(2L);
+    assertThat(result.get(0).status()).isEqualTo("SUBMITTED");
     assertThat(result.get(0).itemCount()).isEqualTo(1);
 
-    assertThat(result.get(1).orderId()).isEqualTo(2L);
-    assertThat(result.get(1).status()).isEqualTo("SUBMITTED");
+    assertThat(result.get(1).orderId()).isEqualTo(3L);
+    assertThat(result.get(1).status()).isEqualTo("DELIVERED");
+    assertThat(result.get(1).restaurantName()).isEqualTo("Fixture Restaurant");
     assertThat(result.get(1).itemCount()).isEqualTo(1);
   }
 

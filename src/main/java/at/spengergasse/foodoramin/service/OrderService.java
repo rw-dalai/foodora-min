@@ -1,23 +1,16 @@
 package at.spengergasse.foodoramin.service;
 
-import at.spengergasse.foodoramin.exception.ApplicationException;
-import at.spengergasse.foodoramin.mapper.OrderMapper;
-import at.spengergasse.foodoramin.model.entity.BaseEntity;
-import at.spengergasse.foodoramin.model.entity.Cart;
-import at.spengergasse.foodoramin.model.entity.Order;
-import at.spengergasse.foodoramin.model.entity.User;
-import at.spengergasse.foodoramin.model.enums.OrderStatus;
 import at.spengergasse.foodoramin.repository.CartRepository;
 import at.spengergasse.foodoramin.repository.OrderRepository;
 import at.spengergasse.foodoramin.repository.UserRepository;
 import at.spengergasse.foodoramin.viewmodel.OrderResponse;
 import at.spengergasse.foodoramin.viewmodel.OrderSummaryResponse;
-import java.util.Comparator;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Slf4j
 @Service
@@ -32,18 +25,11 @@ public class OrderService {
   public List<OrderSummaryResponse> getOrdersForUser(Long userId) {
     log.debug("Loading orders for userId={}", userId);
 
-    userRepository.findById(userId)
-        .orElseThrow(() -> ApplicationException.ofNotFound("User not found: " + userId));
+    // TODO Step 1: Load the user (throw not found if missing)
+    // TODO Step 2: Load all orders for the user, filter out CANCELLED, sort by orderedAt descending, and map to summaries
+    // TODO Step 3: Return the result
 
-    List<OrderSummaryResponse> result = orderRepository.findByUserId(userId)
-        .stream()
-        .filter(order -> order.getStatus() != OrderStatus.CANCELLED)
-        .sorted(Comparator.comparing(BaseEntity::getId).reversed())
-        .map(OrderMapper::toSummary)
-        .toList();
-
-    log.info("Loaded orders for userId={} count={}", userId, result.size());
-    return result;
+    return null;
   }
 
   @Transactional
