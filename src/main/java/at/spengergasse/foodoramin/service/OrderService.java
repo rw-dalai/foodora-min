@@ -1,5 +1,9 @@
 package at.spengergasse.foodoramin.service;
 
+import at.spengergasse.foodoramin.exception.ApplicationException;
+import at.spengergasse.foodoramin.model.entity.Cart;
+import at.spengergasse.foodoramin.model.entity.Order;
+import at.spengergasse.foodoramin.model.entity.User;
 import at.spengergasse.foodoramin.repository.CartRepository;
 import at.spengergasse.foodoramin.repository.OrderRepository;
 import at.spengergasse.foodoramin.repository.UserRepository;
@@ -10,7 +14,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import at.spengergasse.foodoramin.mapper.OrderMapper;
+import at.spengergasse.foodoramin.model.enums.OrderStatus;
+
+import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -26,23 +36,53 @@ public class OrderService {
     log.debug("Loading orders for userId={}", userId);
 
     // TODO Step 1: Load the user (throw not found if missing)
+    userRepository.findById(userId)
+        .orElseThrow(() -> ApplicationException.ofNotFound("User not found: " + userId));
+
     // TODO Step 2: Load all orders for the user, filter out CANCELLED, sort by orderedAt descending, and map to summaries
     // TODO Step 3: Return the result
-
-    return null;
+    return orderRepository.findByUserId(userId).stream()
+        .filter(order -> order.getStatus() != OrderStatus.CANCELLED)
+        .sorted(Comparator.comparing(Order::getOrderedAt).reversed())
+        .map(OrderMapper::toSummary)
+        .toList();
   }
 
   @Transactional
   public OrderResponse order(Long userId) {
     log.debug("Placing order for userId={}", userId);
 
-    // TODO Step 1: Load the user (throw not found if missing)
-    // TODO Step 2: Load the user's cart (throw not found if missing)
-    // TODO Step 3: Validate the cart is not empty (throw conflict if empty)
-    // TODO Step 4: Create an Order, copy lines from cart, save order, clear cart
-    // TODO Step 5: Return the mapped response
+// Imperative Version
+//    Optional<User> optionalUser = userRepository.findById(userId);
+//    User user;
+//    if (optionalUser.isPresent()) {
+//      user = optionalUser.get();
+//    } else {
+//      throw ApplicationException.ofNotFound("User not found " + userId);
+//    }
 
-    return null;
+    // TODO Step 1: Load the user (throw not found if missing)
+    User user = userRepository.findById(userId).orElseThrow(() ->
+        ApplicationException.ofNotFound("User not found " + userId));
+
+    // TODO Step 2: Load the user's cart (throw not found if missing)
+    Cart cart = cartRepository.findByUserId(userId).orElseThrow(() ->
+        ApplicationException.ofNotFound("Cart not found"));
+
+    // TODO Step 3: Validate the cart is not empty (throw conflict if empty)
+    if (cart.isEmpty()) {
+      throw ApplicationException.ofConflict("Cart is empty");
+    }
+
+    // TODO Step 4: Create an Order, copy lines from cart, save order, clear cart
+    var order = new Order(user, cart.getRestaurant());
+    order.addLinesFromCart(cart);
+    orderRepository.save(order);
+    cart.clearItems();
+    // TODO Better: Delete the cart for this user
+
+    // TODO Step 5: Return the mapped response
+    return OrderMapper.toResponse(order);
   }
 
   @Transactional

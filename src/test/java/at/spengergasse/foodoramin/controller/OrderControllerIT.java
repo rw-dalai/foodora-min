@@ -76,6 +76,31 @@ class OrderControllerIT {
   @Test
   void placeOrder_shouldReturn201AndCreateOrder() {
     // TODO Step 1: Save a user, restaurant, and cart with one item
+
     // TODO Step 2: POST to /api/users/{userId}/orders and assert 201 + Location header + body
+  }
+
+  // ---- cancelOrder ----
+
+  @Test
+  void cancelOrder_shouldReturn204ForSubmittedOrder() {
+    // TODO Step 1: Save a user, restaurant, and a SUBMITTED order
+
+    // TODO Step 2: POST to /api/users/{userId}/orders/{orderId}/cancel and assert 204
+  }
+
+  @Test
+  void cancelOrder_shouldReturn404WhenUserNotFound() {
+    // TODO Step 1: POST to /api/users/999/orders/999/cancel and assert 404
+  }
+
+  @Test
+  void cancelOrder_shouldReturn404WhenOrderNotFound() {
+    // TODO Step 1: Save a user
+  }
+
+  @Test
+  void cancelOrder_shouldReturn400WhenOrderAlreadyDelivered() {
+    // TODO Step 1: Save a user, restaurant, and a DELIVERED order
   }
 }

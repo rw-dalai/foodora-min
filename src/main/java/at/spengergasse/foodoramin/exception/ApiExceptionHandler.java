@@ -16,7 +16,7 @@ public class ApiExceptionHandler {
     return toProblem(ex.getStatus(), ex.getCode(), ex.getMessage(), request.getRequestURI());
   }
 
-  @ExceptionHandler({IllegalArgumentException.class, MethodArgumentNotValidException.class})
+  @ExceptionHandler({IllegalArgumentException.class, IllegalStateException.class, MethodArgumentNotValidException.class})
   public ProblemDetail handleBadRequest(Exception ex, HttpServletRequest request) {
     String detail = ex.getMessage();
 
