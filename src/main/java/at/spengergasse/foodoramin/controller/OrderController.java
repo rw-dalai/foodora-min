@@ -27,8 +27,9 @@ public class OrderController {
     return orderService.getOrdersForUser(userId);
   }
 
-  // TODO: Call the service, build a Location URI, return 201 Created with body
+  // TODO: Endpoint for placing Order
+  //    Use suiteable HTTP Verb, URL, and status code
 
-  // TODO: Call the service and return 204 No Content
-  // /{orderId}/cancel")
+  // TODO: Endpoint for cancel Order
+  //  Use suiteable HTTP Verb, URL, and status code
 }

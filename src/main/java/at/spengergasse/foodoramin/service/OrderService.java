@@ -35,17 +35,27 @@ public class OrderService {
   public List<OrderSummaryResponse> getOrdersForUser(Long userId) {
     log.debug("Loading orders for userId={}", userId);
 
-    // TODO Step 1: Load the user (throw not found if missing)
-    userRepository.findById(userId)
-        .orElseThrow(() -> ApplicationException.ofNotFound("User not found: " + userId));
+    // TODO Step 1: Check if the user exists (throw not found if missing)
+    if (!userRepository.existsById(userId)) {
+        throw ApplicationException.ofNotFound("User not found " + userId);
+    }
+//    User user = userRepository.findById(userId).orElseThrow(() ->
+//        ApplicationException.ofNotFound("User not found " + userId));
 
-    // TODO Step 2: Load all orders for the user, filter out CANCELLED, sort by orderedAt descending, and map to summaries
+    // TODO Step 2: Load all orders for the user, filter out CANCELLED,
+    //  sort by orderedAt descending, and map to summaries
+    List<Order> orders = orderRepository.findByUserId(userId);
+
+    // filter, map, sorted
+    List<OrderSummaryResponse> response = orders.stream()
+          .filter(order -> order.getStatus() != OrderStatus.CANCELLED)
+            .sorted((order1, order2) -> order2.getOrderedAt().compareTo(order1.getOrderedAt()))
+          // .sorted(Comparator.comparing(Order::getOrderedAt).reversed())
+          .map(order -> OrderMapper.toSummary(order))
+          .toList();
+
     // TODO Step 3: Return the result
-    return orderRepository.findByUserId(userId).stream()
-        .filter(order -> order.getStatus() != OrderStatus.CANCELLED)
-        .sorted(Comparator.comparing(Order::getOrderedAt).reversed())
-        .map(OrderMapper::toSummary)
-        .toList();
+    return response;
   }
 
   @Transactional

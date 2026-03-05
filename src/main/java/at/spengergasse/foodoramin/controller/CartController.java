@@ -26,5 +26,6 @@ public class CartController {
     return cartService.addItemToCart(userId, request);
   }
 
-  // TODO: Call the service and return 204 No Content
+ // TODO Endpoint for clear Cart
+  //  Use suitable HTTP Verb, URL, and status code
 }
