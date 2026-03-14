@@ -39,11 +39,26 @@ class CartControllerIT {
   @Test
   void clearCart_shouldReturn204AndEmptyCart() {
     // TODO Step 1: Save a user, restaurant, and cart with one item
+    var user = userRepository.save(newUser());
+    var restaurant = restaurantRepository.save(newRestaurantWithMenu());
+    cartRepository.save(newCartWithOneItem(user, restaurant.readMenu().getFirst(), 2));
+
     // TODO Step 2: DELETE /api/users/{userId}/cart and assert 204
+    given()
+    .when()
+        .delete("/api/users/{userId}/cart", user.getId())
+    .then()
+        .statusCode(204);
   }
 
   @Test
   void clearCart_shouldReturn404WhenUserNotFound() {
     // TODO Step 1: DELETE /api/users/999/cart and assert 404 + error body with code NOT_FOUND
+    given()
+    .when()
+        .delete("/api/users/{userId}/cart", 999L)
+    .then()
+        .statusCode(404)
+        .body("code", equalTo("NOT_FOUND"));
   }
 }

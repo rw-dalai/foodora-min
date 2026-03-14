@@ -37,10 +37,10 @@ public class OrderService {
 
     // TODO Step 1: Check if the user exists (throw not found if missing)
     if (!userRepository.existsById(userId)) {
-        throw ApplicationException.ofNotFound("User not found " + userId);
+        throw ApplicationException.ofNotFound("User not found: " + userId);
     }
 //    User user = userRepository.findById(userId).orElseThrow(() ->
-//        ApplicationException.ofNotFound("User not found " + userId));
+//        ApplicationException.ofNotFound("User not found: " + userId));
 
     // TODO Step 2: Load all orders for the user, filter out CANCELLED,
     //  sort by orderedAt descending, and map to summaries
@@ -100,9 +100,22 @@ public class OrderService {
     log.debug("Cancelling order orderId={} for userId={}", orderId, userId);
 
     // TODO Step 1: Load the user (throw not found if missing)
+    userRepository.findById(userId).orElseThrow(() ->
+        ApplicationException.ofNotFound("User not found " + userId));
+
     // TODO Step 2: Load the order (throw not found if missing)
+    Order order = orderRepository.findById(orderId).orElseThrow(() ->
+        ApplicationException.ofNotFound("Order not found " + orderId));
+
     // TODO Step 3: Verify the order belongs to the user (throw forbidden if not)
+    if (!Objects.equals(order.getUser().getId(), userId)) {
+      throw ApplicationException.ofForbidden("Order does not belong to user");
+    }
+
     // TODO Step 4: Cancel the order (this may throw IllegalStateException if already DELIVERED)
+    order.cancel();
+
     // TODO Step 5: Log success
+    log.info("Cancelled order orderId={} for userId={}", orderId, userId);
   }
 }

@@ -63,8 +63,17 @@ public class CartService {
     log.debug("Clearing cart for userId={}", userId);
 
     // TODO Step 1: Load the user (throw not found if missing)
+    userRepository.findById(userId)
+        .orElseThrow(() -> ApplicationException.ofNotFound("User not found: " + userId));
+
     // TODO Step 2: Load the user's cart (throw not found if missing)
+    Cart cart = cartRepository.findByUserId(userId)
+        .orElseThrow(() -> ApplicationException.ofNotFound("Cart not found for user: " + userId));
+
     // TODO Step 3: Clear all items from the cart
+    cart.clearItems();
+
     // TODO Step 4: Log success
+    log.info("Cleared cart for userId={}", userId);
   }
 }

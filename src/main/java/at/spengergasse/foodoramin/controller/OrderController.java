@@ -29,7 +29,18 @@ public class OrderController {
 
   // TODO: Endpoint for placing Order
   //    Use suiteable HTTP Verb, URL, and status code
+  @PostMapping
+  public ResponseEntity<OrderResponse> placeOrder(@PathVariable Long userId) {
+    OrderResponse response = orderService.order(userId);
+    URI location = URI.create("/api/users/%d/orders/%d".formatted(userId, response.orderId()));
+    return ResponseEntity.created(location).body(response);
+  }
 
   // TODO: Endpoint for cancel Order
   //  Use suiteable HTTP Verb, URL, and status code
+  @PostMapping("/{orderId}/cancel")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  public void cancelOrder(@PathVariable Long userId, @PathVariable Long orderId) {
+    orderService.cancelOrder(userId, orderId);
+  }
 }

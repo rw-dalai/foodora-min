@@ -27,5 +27,10 @@ public class CartController {
   }
 
  // TODO Endpoint for clear Cart
-  //  Use suitable HTTP Verb, URL, and status code
+ //  Use suitable HTTP Verb, URL, and status code
+  @DeleteMapping
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  public void clearCart(@PathVariable Long userId) {
+    cartService.clearCart(userId);
+  }
 }

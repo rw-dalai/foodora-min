@@ -76,8 +76,19 @@ class OrderControllerIT {
   @Test
   void placeOrder_shouldReturn201AndCreateOrder() {
     // TODO Step 1: Save a user, restaurant, and cart with one item
+    var user = userRepository.save(newUser());
+    var restaurant = restaurantRepository.save(newRestaurantWithMenu());
+    cartRepository.save(newCartWithOneItem(user, restaurant.readMenu().getFirst(), 2));
 
     // TODO Step 2: POST to /api/users/{userId}/orders and assert 201 + Location header + body
+    given()
+    .when()
+        .post("/api/users/{userId}/orders", user.getId())
+    .then()
+        .statusCode(201)
+        .header("Location", startsWith("/api/users/" + user.getId() + "/orders/"))
+        .body("status", equalTo("SUBMITTED"))
+        .body("items", hasSize(1));
   }
 
   // ---- cancelOrder ----
@@ -85,22 +96,54 @@ class OrderControllerIT {
   @Test
   void cancelOrder_shouldReturn204ForSubmittedOrder() {
     // TODO Step 1: Save a user, restaurant, and a SUBMITTED order
+    var user = userRepository.save(newUser());
+    var restaurant = restaurantRepository.save(newRestaurantWithMenu());
+    var order = orderRepository.save(newSubmittedOrder(user, restaurant));
 
     // TODO Step 2: POST to /api/users/{userId}/orders/{orderId}/cancel and assert 204
+    given()
+    .when()
+        .post("/api/users/{userId}/orders/{orderId}/cancel", user.getId(), order.getId())
+    .then()
+        .statusCode(204);
   }
 
   @Test
   void cancelOrder_shouldReturn404WhenUserNotFound() {
     // TODO Step 1: POST to /api/users/999/orders/999/cancel and assert 404
+    given()
+    .when()
+        .post("/api/users/{userId}/orders/{orderId}/cancel", 999L, 999L)
+    .then()
+        .statusCode(404)
+        .body("code", equalTo("NOT_FOUND"));
   }
 
   @Test
   void cancelOrder_shouldReturn404WhenOrderNotFound() {
     // TODO Step 1: Save a user
+    var user = userRepository.save(newUser());
+
+    given()
+    .when()
+        .post("/api/users/{userId}/orders/{orderId}/cancel", user.getId(), 999L)
+    .then()
+        .statusCode(404)
+        .body("code", equalTo("NOT_FOUND"));
   }
 
   @Test
   void cancelOrder_shouldReturn400WhenOrderAlreadyDelivered() {
     // TODO Step 1: Save a user, restaurant, and a DELIVERED order
+    var user = userRepository.save(newUser());
+    var restaurant = restaurantRepository.save(newRestaurantWithMenu());
+    var order = orderRepository.save(newDeliveredOrder(user, restaurant));
+
+    given()
+    .when()
+        .post("/api/users/{userId}/orders/{orderId}/cancel", user.getId(), order.getId())
+    .then()
+        .statusCode(400)
+        .body("code", equalTo("BAD_REQUEST"));
   }
 }
